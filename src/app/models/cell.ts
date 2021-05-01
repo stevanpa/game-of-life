@@ -20,9 +20,7 @@ export class Cell {
     init(x: number, y: number): Cell {
         this.x = x;
         this.y = y;
-        this.extent = new Extent(x, y, x + 10, y + 10);
-        this.bufferExtent = new Extent(x - 10, y - 10, x + 20, y + 20);
-
+        this.setExtent();
         return this;
     }
 
@@ -39,42 +37,24 @@ export class Cell {
         let height = (this.ctx) ? this.ctx.canvas.height : 0;
         if (this.alive) {
             if (this.x >= width && this.y >= height) {
-                this.ctx?.fillRect(this.x - width, this.y - height, 10, 10);
-                // this.extent = new Extent(this.x - width, this.y - height, this.x - width + 10, this.y - height + 10);
-                // this.bufferExtent = new Extent(this.x - width - 10, this.y - height - 10, this.x - width + 20, this.y - height + 20);
-                // console.log(this.extent, this.bufferExtent);
+                this.x = this.x - width;
+                this.y = this.y - height;
             } else if (this.x >= width) {
-                this.ctx?.fillRect(this.x - width, this.y, 10, 10);
-                // this.extent = new Extent(this.x - width, this.y, this.x - width + 10, this.y + 10);
-                // this.bufferExtent = new Extent(this.x - width - 10, this.y - 10, this.x - width + 20, this.y + 20);
-                // console.log(this.extent, this.bufferExtent);
+                this.x = this.x - width;
             } else if (this.y >= height) {
-                this.ctx?.fillRect(this.x, this.y - height, 10, 10);
-                // this.extent = new Extent(this.x, this.y - height, this.x + 10, this.y - height + 10);
-                // this.bufferExtent = new Extent(this.x - 10, this.y - height - 10, this.x + 20, this.y - height + 20);
-                // console.log(this.extent, this.bufferExtent);
-            } else {
-                this.ctx?.fillRect(this.x, this.y, 10, 10);
+                this.y = this.y - height;
             }
+            this.ctx?.fillRect(this.x, this.y, 10, 10);
         } else {
-            if (this.x >= width && this.y >= height) {
-                this.ctx?.clearRect(this.x - width, this.y - height, 10, 10);
-                // this.extent = new Extent(this.x - width, this.y - height, this.x - width + 10, this.y - height + 10);
-                // this.bufferExtent = new Extent(this.x - width - 10, this.y - height - 10, this.x - width + 20, this.y - height + 20);
-                // console.log(this.extent, this.bufferExtent);
-            } else if (this.x >= width) {
-                this.ctx?.clearRect(this.x - width, this.y, 10, 10);
-                // this.extent = new Extent(this.x - width, this.y, this.x - width + 10, this.y + 10);
-                // this.bufferExtent = new Extent(this.x - width - 10, this.y - 10, this.x - width + 20, this.y + 20);
-                // console.log(this.extent, this.bufferExtent);
-            } else if (this.y >= height) {
-                this.ctx?.clearRect(this.x, this.y - height, 10, 10);
-                // this.extent = new Extent(this.x, this.y - height, this.x + 10, this.y - height + 10);
-                // this.bufferExtent = new Extent(this.x - 10, this.y - height - 10, this.x + 20, this.y - height + 20);
-                // console.log(this.extent, this.bufferExtent);
-            } else {
-                this.ctx?.clearRect(this.x, this.y, 10, 10);
-            }
+            this.ctx?.clearRect(this.x, this.y, 10, 10);
         }
+    }
+
+    setExtent() {
+        this.extent = new Extent(this.x, this.y, this.x + 10, this.y + 10);
+        this.bufferExtent = new Extent(this.x - 10, this.y - 10, this.x + 20, this.y + 20);
+        // this.ctx?.strokeRect(this.extent.minx, this.extent.miny, this.extent.maxx - this.extent.minx, this.extent.maxy - this.extent.miny);
+        // console.log(this.extent, this.bufferExtent);
+        // { minx: 0, miny: 440, maxx: 10, maxy: 450, extent: (
     }
 }

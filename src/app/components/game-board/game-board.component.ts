@@ -12,8 +12,8 @@ export class GameBoardComponent implements AfterViewInit  {
   @ViewChild('board', { static: false }) board: ElementRef<HTMLCanvasElement> | undefined;
 
   canvas: HTMLCanvasElement | undefined;
-  width = 480;
-  height = 480;
+  width = 260;
+  height = 260;
   ctx: CanvasRenderingContext2D | null | undefined;
   extent: Extent;
 
@@ -41,14 +41,14 @@ export class GameBoardComponent implements AfterViewInit  {
       this.canvas.height = this.height;
       this.ctx = this.canvas?.getContext('2d');
       this.ctx?.strokeRect(0, 0, this.width, this.height);
-      
-      this.glider = new Glider(this.ctx, this.width / 2, this.height / 2);
+
+      this.glider = new Glider(this.ctx, this.width, this.height);
     }
     
     this.fpsInterval = 1000 / this.fps;
     this.then = Date.now();
     this.startTime = this.then;
-    // this.draw();
+    this.draw();
   }
 
   draw() {
@@ -64,6 +64,8 @@ export class GameBoardComponent implements AfterViewInit  {
         if (elapsed > this.fpsInterval) {
           this.then = now - (elapsed % this.fpsInterval);
           this.glider?.applyRules();
+          // redraw game-board boundary
+          this.ctx?.strokeRect(0, 0, this.width, this.height);
         }
     }
   }

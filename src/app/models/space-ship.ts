@@ -4,65 +4,43 @@ import { Extent } from "./extent";
 export abstract class SpaceShip {
 
     ctx: CanvasRenderingContext2D | null | undefined;
-    x: number;
-    y: number;
+    minx: number;
+    maxy: number;
+    maxx: number;
+    miny: number;
+    boardWidth: number;
+    boardHeight: number;
 
-    bufferedCells: Array<Cell> = new Array();
-    bufferedExtent: Extent = new Extent(0, 0, 0, 0);
-    nextBufferedCells: Array<Cell> = new Array();
+    cells: Array<Cell> = new Array();
+    extent: Extent;
+    nextCells: Array<Cell> = new Array();
 
-    constructor(ctx: CanvasRenderingContext2D | null | undefined, x: number, y: number) {
+    constructor(ctx: CanvasRenderingContext2D | null | undefined, 
+        minx: number, maxy: number, maxx: number, miny: number,
+        boardWidth: number, boardHeight: number) {
+
         this.ctx = ctx;
-        this.x = x;
-        this.y = y;
-        this.bufferedExtent = new Extent(x, y, x, y);
+        this.minx = minx;
+        this.maxy = maxy;
+        this.maxx = maxx;
+        this.miny = miny;
+        this.boardWidth = boardWidth;
+        this.boardHeight = boardHeight;
+        this.extent = new Extent(minx, miny, maxx, maxy);
     }
 
     getBufferedCells(cell: Cell): Array<Cell> {
-        let cellNeighbours = this.bufferedCells.filter(innerCell => 
-            cell.bufferExtent.contains(innerCell.extent)
-        );
-        cellNeighbours = cellNeighbours.filter(innerCell => innerCell.x !== cell.x || innerCell.y !== cell.y);
+        let cellNeighbours = this.cells.filter(innerCell => cell.bufferExtent.contains(innerCell.extent))
+                                       .filter(innerCell => innerCell.x !== cell.x || innerCell.y !== cell.y);
 
         return cellNeighbours;
     }
 
-    protected updateBufferedExtent() {
-        let liveCells = this.bufferedCells.filter(cell => cell.alive == true);
-        let minx = -1, maxx = -1, miny = -1, maxy = -1;
-        liveCells.forEach(cell => {
-            let topLeft = cell.extent.getTopLeft();
-            let bottomRight = cell.extent.getBottomRight();
-            minx = (minx == -1 || minx >= topLeft[0]) ? minx = topLeft[0] : minx;
-            maxx = (maxx == -1 || maxx <= bottomRight[0]) ? maxx = bottomRight[0] : maxx;
-            miny = (miny == -1 || miny >= bottomRight[1]) ? miny = bottomRight[1] : miny;
-            maxy = (maxy == -1 || maxy <= topLeft[1]) ? maxy = topLeft[1] : maxy;
-        });
-
-        this.ctx?.clearRect(this.bufferedExtent.minx, this.bufferedExtent.maxy, 
-            this.bufferedExtent.maxx - this.bufferedExtent.minx, this.bufferedExtent.maxy - this.bufferedExtent.miny);
-
-        this.bufferedExtent = new Extent(minx - 10, miny, maxx + 10, maxy + 20);
-    }
-
-    protected updateBufferedCells() {
-        this.bufferedCells = new Array();
-        for (let y=0; y<5; y++) {
-            for (let x=0; x<5; x++) {
-                this.bufferedCells.push( new Cell(this.ctx).init(this.bufferedExtent.minx + (x * 10), this.bufferedExtent.maxy - 10 - (y * 10)) );
-            }
-        }
-
-        this.nextBufferedCells.forEach(cell => {
-            let index = this.bufferedCells.findIndex(bufferedCell => bufferedCell.extent.contains(cell.extent));
-            if (index !== -1) {
-                this.bufferedCells[index] = cell;
-            }
-        });
-    }
-
     protected redraw() {
-        this.bufferedCells.forEach(cell => {
+
+        this.ctx?.clearRect(0, 0, this.boardWidth, this.boardHeight);
+
+        this.cells.forEach(cell => {
             if (cell.reproduce || cell.nextGeneration) {
                 cell.alive = true;
             } else { // cell.sentencedToDie
@@ -73,14 +51,44 @@ export abstract class SpaceShip {
             cell.nextGeneration = false;
 
             cell.redraw();
+            // cell.setExtent();
         });
 
-        this.updateBufferedExtent();
-        this.updateBufferedCells();
+        this.setExtent();
+        this.updateCells();
+    }
 
-        // redraw game-board boundary
-        let width = (this.ctx) ? this.ctx.canvas.width : 0;
-        let height = (this.ctx) ? this.ctx.canvas.height : 0;
-        this.ctx?.strokeRect(0, 0, width, height);
+    protected setExtent() {
+        let liveCells = this.cells.filter(cell => cell.alive == true);
+        let minx = -1, maxx = -1, miny = -1, maxy = -1;
+        liveCells.forEach(cell => {
+            let cellMinx = cell.extent.getTopLeft()[0];
+            let cellMiny = cell.extent.getTopLeft()[1];
+            let cellMaxx = cell.extent.getBottomRight()[0];
+            let cellMaxy = cell.extent.getBottomRight()[1];
+
+            minx = (minx == -1 || minx >= cellMinx) ? cellMinx : minx;
+            maxx = (maxx == -1 || maxx <= cellMaxx) ? cellMaxx : maxx;
+            miny = (miny == -1 || miny >= cellMaxy) ? cellMaxy : miny;
+            maxy = (maxy == -1 || maxy <= cellMiny) ? cellMiny : maxy;
+        });
+
+        this.extent = new Extent(minx - 10, miny - 10, maxx + 10, maxy + 10);
+    }
+
+    protected updateCells() {
+        this.cells = new Array();
+        for (let y=0; y<5; y++) {
+            for (let x=0; x<5; x++) {
+                this.cells.push( new Cell(this.ctx).init(this.extent.minx + (x * 10), this.extent.maxy - 10 - (y * 10)) );
+            }
+        }
+
+        this.nextCells.forEach(nextCell => {
+            let index = this.cells.findIndex(cell => cell.extent.contains(nextCell.extent));
+            if (index !== -1) {
+                this.cells[index] = nextCell;
+            }
+        });
     }
 }
