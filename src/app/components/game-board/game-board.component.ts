@@ -40,18 +40,15 @@ export class GameBoardComponent implements AfterViewInit  {
       this.canvas.width = this.width;
       this.canvas.height = this.height;
       this.ctx = this.canvas?.getContext('2d');
-      this.initBoard();
+      this.ctx?.strokeRect(0, 0, this.width, this.height);
+      
+      this.glider = new Glider(this.ctx, this.width / 2, this.height / 2);
     }
     
     this.fpsInterval = 1000 / this.fps;
     this.then = Date.now();
     this.startTime = this.then;
     // this.draw();
-  }
-
-  private initBoard(): void {
-    this.ctx?.strokeRect(0, 0, this.width, this.height);
-    this.glider = new Glider(this.ctx, this.width / 2, this.height / 2);
   }
 
   draw() {

@@ -33,10 +33,10 @@ export abstract class SpaceShip {
         liveCells.forEach(cell => {
             let topLeft = cell.extent.getTopLeft();
             let bottomRight = cell.extent.getBottomRight();
-            minx = (minx == -1 || minx > topLeft[0]) ? minx = topLeft[0] : minx;
-            maxx = (maxx == -1 || maxx < bottomRight[0]) ? maxx = bottomRight[0] : maxx;
-            miny = (miny == -1 || miny > bottomRight[1]) ? miny = bottomRight[1] : miny;
-            maxy = (maxy == -1 || maxy < topLeft[1]) ? maxy = topLeft[1] : maxy;
+            minx = (minx == -1 || minx >= topLeft[0]) ? minx = topLeft[0] : minx;
+            maxx = (maxx == -1 || maxx <= bottomRight[0]) ? maxx = bottomRight[0] : maxx;
+            miny = (miny == -1 || miny >= bottomRight[1]) ? miny = bottomRight[1] : miny;
+            maxy = (maxy == -1 || maxy <= topLeft[1]) ? maxy = topLeft[1] : maxy;
         });
 
         this.ctx?.clearRect(this.bufferedExtent.minx, this.bufferedExtent.maxy, 
