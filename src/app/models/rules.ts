@@ -1,5 +1,4 @@
 import { Cell } from "./cell";
-import { SpaceShip } from "./space-ship";
 
 export abstract class Rules {
 
@@ -11,47 +10,39 @@ export abstract class Rules {
     // Any live cell with more than three live neighbours dies, as if by overpopulation.
     // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
-    static underpopulationDies(cells: Array<Cell>, spaceShip: SpaceShip) {
-        let liveCells = cells.filter(cell => cell.alive);
-        liveCells.forEach(cell => {
-            let cellNeighbours = spaceShip.getBufferedCells(cell);
-            let cellsAlive = cellNeighbours.filter(cellNeighbour => cellNeighbour.alive);
-            if (cellsAlive.length < 2) {
+    static underpopulationDies(cell: Cell, neighbours: Array<Cell>) {
+        let cellsAlive = neighbours.filter(neighbour => neighbour.alive);
+        if (cellsAlive.length < 2) {
+            if (cell.alive) {
                 cell.sentencedToDie = true;
             }
-        });
+        }
     }
 
-    static nextGeneration(cells: Array<Cell>, spaceShip: SpaceShip) {
-        let liveCells = cells.filter(cell => cell.alive);
-        liveCells.forEach(cell => {
-            let cellNeighbours = spaceShip.getBufferedCells(cell);
-            let cellsAlive = cellNeighbours.filter(cellNeighbour => cellNeighbour.alive);
-            if (cellsAlive.length == 2 || cellsAlive.length == 3) {
+    static nextGeneration(cell: Cell, neighbours: Array<Cell>) {
+        let cellsAlive = neighbours.filter(neighbour => neighbour.alive);
+        if (cellsAlive.length == 2 || cellsAlive.length == 3) {
+            if (cell.alive) {
                 cell.nextGeneration = true;
             }
-        });
+        }
     }
 
-    static overpopulation(cells: Array<Cell>, spaceShip: SpaceShip) {
-        let liveCells = cells.filter(cell => cell.alive);
-        liveCells.forEach(cell => {
-            let cellNeighbours = spaceShip.getBufferedCells(cell);
-            let cellsAlive = cellNeighbours.filter(cellNeighbour => cellNeighbour.alive);
-            if (cellsAlive.length > 3) {
+    static overpopulation(cell: Cell, neighbours: Array<Cell>) {
+        let cellsAlive = neighbours.filter(neighbour => neighbour.alive);
+        if (cellsAlive.length > 3) {
+            if (cell.alive) {
                 cell.sentencedToDie = true;
             }
-        });
+        }
     }
 
-    static reproduction(cells: Array<Cell>, spaceShip: SpaceShip) {
-        let deadCells = cells.filter(cell => !cell.alive);
-        deadCells.forEach(cell => {
-            let cellNeighbours = spaceShip.getBufferedCells(cell);
-            let cellsAlive = cellNeighbours.filter(cellNeighbour => cellNeighbour.alive);
-            if (cellsAlive.length === 3) {
+    static reproduction(cell: Cell, neighbours: Array<Cell>) {
+        let cellsAlive = neighbours.filter(neighbour => neighbour.alive);
+        if (cellsAlive.length === 3) {
+            if (!cell.alive) {
                 cell.reproduce = true;
             }
-        });
+        }
     }
 }

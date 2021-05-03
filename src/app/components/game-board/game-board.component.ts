@@ -1,53 +1,51 @@
-import { Component, AfterViewInit , ElementRef, ViewChild } from '@angular/core';
-import { Extent } from 'src/app/models/extent';
-import { Glider } from 'src/app/models/glider';
+import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Board } from 'src/app/models/board';
 
 @Component({
   selector: 'app-game-board',
   templateUrl: './game-board.component.html',
   styleUrls: ['./game-board.component.css']
 })
-export class GameBoardComponent implements AfterViewInit  {
+export class GameBoardComponent implements AfterViewInit {
 
-  @ViewChild('board', { static: false }) board: ElementRef<HTMLCanvasElement> | undefined;
+  @ViewChild('canvasBoard', { static: false }) canvasBoard: ElementRef<HTMLCanvasElement> | undefined;
 
   canvas: HTMLCanvasElement | undefined;
-  width = 260;
-  height = 260;
+  width = 250;
+  height = 250;
   ctx: CanvasRenderingContext2D | null | undefined;
-  extent: Extent;
 
   frameCount = 0;
-  fps = 10;
+  fps = 5;
   fpsInterval = 0;
   startTime = Date.now();
   now = Date.now();
   then = Date.now();
-  elapsed = 0;
-
-  glider: Glider | undefined;
+  elapsed = 0;;
 
   drawPending = false;
 
+  board: Board;
+
   constructor() {
-    this.extent = new Extent(0, 0, this.width, this.height);
-    
+    let x = this.width / 10;
+    let y = this.height / 10;
+    this.board = new Board(x, y);
   }
 
   ngAfterViewInit(): void {
-    this.canvas = this.board?.nativeElement;
+    this.canvas = this.canvasBoard?.nativeElement;
     if (this.canvas !== undefined) {
       this.canvas.width = this.width;
       this.canvas.height = this.height;
       this.ctx = this.canvas?.getContext('2d');
-      this.ctx?.strokeRect(0, 0, this.width, this.height);
-
-      this.glider = new Glider(this.ctx, this.width, this.height);
+      this.board.setCanvas(this.ctx);
     }
     
     this.fpsInterval = 1000 / this.fps;
     this.then = Date.now();
     this.startTime = this.then;
+
     this.draw();
   }
 
@@ -63,12 +61,14 @@ export class GameBoardComponent implements AfterViewInit  {
 
         if (elapsed > this.fpsInterval) {
           this.then = now - (elapsed % this.fpsInterval);
-          this.glider?.applyRules();
-          // redraw game-board boundary
+
+          this.ctx?.clearRect(0, 0, this.width, this.height);
+
+          this.board.draw();
+          
           this.ctx?.strokeRect(0, 0, this.width, this.height);
         }
     }
   }
 
-  
 }
