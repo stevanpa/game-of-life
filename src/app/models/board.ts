@@ -51,7 +51,7 @@ export class Board {
                 if (cell.alive) {
                     let dX = this.tileSize * cell.x;
                     let dY = this.tileSize * cell.y;
-                    this.ctx?.fillRect(dX, dY, 10, 10);
+                    this.ctx?.fillRect(dX, dY, this.tileSize, this.tileSize);
                 }
             });
         });
