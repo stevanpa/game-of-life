@@ -40,11 +40,8 @@ export class Board {
     draw() {
         let width = this.tileSize * this.x;
         let height = this.tileSize * this.y;
-        this.ctx?.strokeRect(0, 0, width, height);
-        this.drawGrid()
-    }
 
-    drawGrid() {
+        this.ctx?.clearRect(0, 0, width, height);
         let grid = this.calculateNextGrid()
         grid.forEach(col => {
             col.forEach(cell => {
@@ -55,6 +52,7 @@ export class Board {
                 }
             });
         });
+        this.ctx?.strokeRect(0, 0, width, height);
     }
 
     calculateNextGrid(): Array<Array<Cell>> {

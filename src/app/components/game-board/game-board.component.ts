@@ -61,12 +61,7 @@ export class GameBoardComponent implements AfterViewInit {
 
         if (elapsed > this.fpsInterval) {
           this.then = now - (elapsed % this.fpsInterval);
-
-          this.ctx?.clearRect(0, 0, this.width, this.height);
-
           this.board.draw();
-          
-          this.ctx?.strokeRect(0, 0, this.width, this.height);
         }
     }
   }
